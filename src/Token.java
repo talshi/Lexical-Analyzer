@@ -1,14 +1,19 @@
 
 public class Token {
 	private String lexema;
-	private TokenTypeEnum type;
+	private TokenTypeEnum.TokenType type;
 	private int location;
 	
-	public Token(String lexema, TokenTypeEnum type, int location) {
+	public Token(String lexema, TokenTypeEnum.TokenType type) {
 		this.lexema = lexema;
 		this.type = type;
-		this.location = location;
 	}
+	
+//	public Token(String lexema, TokenTypeEnum.TokenType type, int location) {
+//		this.lexema = lexema;
+//		this.type = type;
+//		this.location = location;
+//	}
 	
 	public String getLexema() {
 		return lexema;
@@ -16,10 +21,10 @@ public class Token {
 	public void setLexema(String lexema) {
 		this.lexema = lexema;
 	}
-	public TokenTypeEnum getType() {
+	public TokenTypeEnum.TokenType getType() {
 		return type;
 	}
-	public void setType(TokenTypeEnum type) {
+	public void setType(TokenTypeEnum.TokenType type) {
 		this.type = type;
 	}
 	public int getLocation() {

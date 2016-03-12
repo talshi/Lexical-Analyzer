@@ -1,7 +1,7 @@
 
 public class TokenTypeEnum {
 
-	public enum TokenType {
+	public static enum TokenType {
 		INT,
 		FUNC,
 		MAIN,

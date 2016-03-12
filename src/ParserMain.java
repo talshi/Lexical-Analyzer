@@ -20,8 +20,14 @@ public class ParserMain {
 			System.exit(0);
 		}
 		
-		while(Parser.yylex(s) != "EOF") {
-			// TODO
-		}
+		// TODO change to do while
+		// TODO yylex return Token...
+//		while(Parser.yylex(s) != "EOF") {
+//			// TODO
+//		}
+		
+		Parser.tokens.toString(); // TODO print map
+		
+		// TODO print map to a file
 	}
 }
