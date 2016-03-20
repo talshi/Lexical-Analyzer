@@ -1,52 +1,49 @@
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Parser {
-	public Map<Token, Integer> tokens;
-	private int charLocation = 0;
-	private int lineNumber = 0;
 	private Token token = null;
 
 	public Parser() {
-		tokens = new HashMap<Token, Integer>();
+//		tokens = new HashMap<Token, Integer>();
 	}
 	
 	public Token yylex(Scanner s) {
-		String line = "";
 		String lexema = "";
 		char c;
 		
-		while(s.hasNext()) { // TODO check condition
-			line = s.nextLine();
-			lineNumber++;
-			charLocation = 0;
-			while(charLocation < line.length()) {
+		if(LineTaker.getLine() == "") {
+			LineTaker.setLine(s.nextLine());
+		}
+		else if(isEndOfLine()) {
+			LineTaker.setLine(s.nextLine());
+			LineTaker.increaseLineNumber();
+			CharTaker.zeroLocation();
+		}
+			
+		while(!isWhiteSpace()) {
+			while(CharTaker.getCharLocation() < LineTaker.getLine().length()) {
 				lexema = "";
-				while(charLocation < line.length() && !Character.isSpaceChar(c = getch(line))) {
+				while(CharTaker.getCharLocation() < LineTaker.getLine().length() && !Character.isSpaceChar(c = CharTaker.getch(LineTaker.getLine()))) {
 					lexema += c;
 				}
 				
-				System.out.println(lexema);
+				System.out.println("(DEBUG)token: " + lexema);
 				token = tokenize(lexema);
 				
 				// if tokenize return non-null value, add the token to the map
 				if(token != null) {
-					System.out.println("Token: " + token.toString() + " lineNumber: " + lineNumber);
-					tokens.put(token, lineNumber);
+					return token;
 				}
 				else {
 					// back to last recognized lexema 
-					while(lexema.length() > 0 && lexema != "") {
-						lexema = lexema.substring(0, lexema.length()-1);
-						charLocation--;
+					while(lexema.length() > 0) {
+						System.out.println("(DEBUG)removing last char.");
+						lexema = CharTaker.removeLastChar(lexema);
 						token = tokenize(lexema);
 						if(token != null) {
-							tokens.put(token, lineNumber);
-							break;
+							return token;
 						}
 					}
 				}
@@ -54,114 +51,98 @@ public class Parser {
 		}
 		return token;
 	}
-
-	private char getch(String s) {
-		char c = '\u0000'; // null char
-		if(charLocation < s.length()) {
-			c = s.charAt(charLocation);
-			charLocation++;
-		}
-		return c;
-	}
-	
-	private char popch(String s) {
-		char c = '\u0000';
-		if(charLocation < s.length())
-			c = s.charAt(charLocation);
-		return c;
-	}
 	
 	private Token tokenize(String token) {
 		Token t = null;
 		switch(token) {
 		case "int":
-			t = new Token("int", Token.TokenType.INT);
+			t = new Token("int", Token.TokenType.INT, LineTaker.getLineNumber());
 			break;
 		case "function":
-			t = new Token("function", Token.TokenType.FUNC);
+			t = new Token("function", Token.TokenType.FUNC, LineTaker.getLineNumber());
 			break;
 		case "main":
-			t = new Token("main", Token.TokenType.MAIN);
+			t = new Token("main", Token.TokenType.MAIN, LineTaker.getLineNumber());
 			break;
 		case "if":
-			t = new Token("if", Token.TokenType.IF);
+			t = new Token("if", Token.TokenType.IF, LineTaker.getLineNumber());
 			break;
 		case "then":
-			t = new Token("then", Token.TokenType.THEN);
+			t = new Token("then", Token.TokenType.THEN, LineTaker.getLineNumber());
 			break;
 		case "else":
-			t = new Token("else", Token.TokenType.ELSE);
+			t = new Token("else", Token.TokenType.ELSE, LineTaker.getLineNumber());
 			break;
 		case "=":
-			char c;
-			if((c = popch(token)) == '=' ) {
-				t = new Token("REL", Token.TokenType.REL);
+			if((CharTaker.popch()) == '=' ) {
+				CharTaker.increaseCharLocation();
+				t = new Token("REL", Token.TokenType.REL, "==", LineTaker.getLineNumber());
 			}
 			else {
-				t = new Token("ASSIGN", Token.TokenType.ASSIGN);
+				t = new Token("ASSIGN", Token.TokenType.ASSIGN, LineTaker.getLineNumber());
 			}
 			break;
 		case "+":
-			t = new Token("PLUS", Token.TokenType.PLUS);
+			t = new Token("PLUS", Token.TokenType.PLUS, "+", LineTaker.getLineNumber());
 			break;
 		case "-":
-			t = new Token("MINUS", Token.TokenType.MINUS);
+			t = new Token("MINUS", Token.TokenType.MINUS, "-", LineTaker.getLineNumber());
 			break;
 		case "*":
-			t = new Token("MULT", Token.TokenType.MULT);
+			t = new Token("MULT", Token.TokenType.MULT, "*", LineTaker.getLineNumber());
 			break;
 		case "/":
-			t = new Token("DIV", Token.TokenType.DIV);
+			t = new Token("DIV", Token.TokenType.DIV, "/", LineTaker.getLineNumber());
 			break;
 		case "&&":
-			t = new Token("AND", Token.TokenType.AND);
+			t = new Token("AND", Token.TokenType.AND, LineTaker.getLineNumber());
 			break;
 		case "||":
-			t = new Token("OR", Token.TokenType.OR);
+			t = new Token("OR", Token.TokenType.OR, LineTaker.getLineNumber());
 			break;
 		case "!=":
-			t = new Token("REL", Token.TokenType.REL);
+			t = new Token("REL", Token.TokenType.REL, "!=", LineTaker.getLineNumber());
 			break;
 		case "<=":
-			t = new Token("REL", Token.TokenType.REL);
+			t = new Token("REL", Token.TokenType.REL, "<=", LineTaker.getLineNumber());
 			break;
 		case ">=":
-			t = new Token("REL", Token.TokenType.REL);
+			t = new Token("REL", Token.TokenType.REL, ">=", LineTaker.getLineNumber());
 			break;
 		case "<":
-			t = new Token("REL", Token.TokenType.REL);
+			t = new Token("REL", Token.TokenType.REL, "<", LineTaker.getLineNumber());
 			break;
 		case ">":
-			t = new Token("REL", Token.TokenType.REL);
+			t = new Token("REL", Token.TokenType.REL, ">", LineTaker.getLineNumber());
 			break;
 		case ";":
-			t = new Token("SC", Token.TokenType.SC);
+			t = new Token("SC", Token.TokenType.SC, LineTaker.getLineNumber());
 			break;
 		case "(":
-			t = new Token("LP", Token.TokenType.LP);
+			t = new Token("LP", Token.TokenType.LP, LineTaker.getLineNumber());
 			break;
 		case ")":
-			t = new Token("RP", Token.TokenType.RP);
+			t = new Token("RP", Token.TokenType.RP, LineTaker.getLineNumber());
 			break;
 		case "{":
-			t = new Token("LC", Token.TokenType.LC);
+			t = new Token("LC", Token.TokenType.LC, LineTaker.getLineNumber());
 			break;
 		case "}":
-			t = new Token("RC", Token.TokenType.RC);
+			t = new Token("RC", Token.TokenType.RC, LineTaker.getLineNumber());
 			break;
-		case "":
-			break;
-		// TODO case EOF
-		
+
 		default:
 			if(isNum(token)) {
-				t = new Token(token, Token.TokenType.NUM);
+				t = new Token(token, Token.TokenType.NUM, token, LineTaker.getLineNumber());
 			}
 			else if(isID(token)) {
-				t = new Token(token, Token.TokenType.ID);
+				t = new Token(token, Token.TokenType.ID, token, LineTaker.getLineNumber());
 			}
 			else if(isFID(token)) {
-				t = new Token(token, Token.TokenType.FID);
+				t = new Token(token, Token.TokenType.FID, token, LineTaker.getLineNumber());
+			}
+			else if(isCMNT(token)) {
+				System.out.println("(DEBUG)Found Comment. Ignoring.");
 			}
 			return t;
 			
@@ -180,30 +161,43 @@ public class Parser {
 	}
 	
 	private boolean isID(String token) {
-		String id = "[a-z][a-zA-Z0-9]";
+		String id = "[a-z][a-zA-Z0-9]*";
 		Pattern idPattern = Pattern.compile(id);
 		Matcher m = idPattern.matcher(token);
-		if(m.find()) {
+		if(m.matches()) {
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean isFID(String token) {
-		String func = "[A-Z][a-zA-Z0-9]";
+		String func = "[A-Z][a-zA-Z0-9]*";
 		Pattern funcPattern = Pattern.compile(func);
 		Matcher m = funcPattern.matcher(token);
-		if(m.find()) {
+		if(m.matches()) {
 			return true;
 		}
 		return false;
 	}
 
-	public String toString() {
-		String output = "";
-		for (Map.Entry<Token, Integer> entry : tokens.entrySet()) {
-			output += entry.getKey().toString() + " ; " + entry.getValue();
+	private boolean isCMNT(String token) {
+		String cmnt = "(//.*?$)|(/\\*.*?\\*/)";
+		Pattern cmntPattern = Pattern.compile(cmnt);
+		Matcher m = cmntPattern.matcher(token);
+		if(m.matches()) {
+			return true;
 		}
-		return output;
+		return false;
 	}
+	
+	private boolean isEndOfLine() {
+		return CharTaker.getCharLocation() >= LineTaker.getLine().length();
+	}
+	
+	private boolean isWhiteSpace() {
+		return LineTaker.getLine().trim().isEmpty();
+	}
+	
+	// TODO case of EOF
+	
 }

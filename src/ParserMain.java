@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.file.Files;
-import java.util.Map;
 import java.util.Scanner;
 
 public class ParserMain {
@@ -29,16 +27,17 @@ public class ParserMain {
 			System.exit(0);
 		}
 		
+		// open file
 		File file = new File(inputFileName[0] + ".token");
 		try {
 			if(!file.createNewFile()) {
 			System.err.println("File already exist!");
-//			System.exit(0);
 			}
 		} catch (IOException e) {
 			System.err.println("Error creating output file!");
 			System.exit(0);
 		}
+		
 		Writer writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
@@ -49,24 +48,21 @@ public class ParserMain {
 		
 		Parser p = new Parser();
 		Token t = null;
+		
+		// find tokens and save them to hashmap
 		do {
 			t = p.yylex(s);
-//			try {
-//				writer.write(t.toString()); // TODO check if works
-//			} catch (IOException e) {
-//				System.err.println("Error writing to file!");
-//				System.exit(0);
-//			}
-		} while(s.hasNext()); // until EOF
-		for (Map.Entry<Token, Integer> entry : p.tokens.entrySet()) {
+			System.out.println("writing to file... " + "[" + t.toString() + "]");
 			try {
-				System.out.println("writing to file... " + "[" + entry.toString() + "]");
-				writer.write(entry.toString());
+				writer.write(t.toString());
+				writer.write("\n");
 			} catch (IOException e) {
 				System.err.println("Error writing to file!");
 				System.exit(0);
 			}
-		}
+		} while(s.hasNext()); // until EOF
+
+		// close writer
 		try {
 			writer.close();
 		} catch (IOException e1) {

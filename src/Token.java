@@ -34,14 +34,10 @@ public class Token {
 	private String attribute;
 	private int lineNumber;
 	
-	public Token(String lexema, TokenType type) {
-		this.lexema = lexema;
-		this.type = type;
-	}
-	
 	public Token(String lexema, TokenType type, int lineNumber) {
 		this.lexema = lexema;
 		this.type = type;
+		this.attribute = "";
 		this.lineNumber = lineNumber;
 	}
 
@@ -52,39 +48,22 @@ public class Token {
 		this.lineNumber = lineNumber;
 	}
 	
-	public String getLexema() {
-		return lexema;
-	}
-	public void setLexema(String lexema) {
-		this.lexema = lexema;
-	}
-	public TokenType getType() {
-		return type;
-	}
-	public void setType(TokenType type) {
-		this.type = type;
-	}
+	public String getLexema() { return lexema; }
+	public void setLexema(String lexema) { this.lexema = lexema; }
 	
-	public String getAttribute() {
-		return attribute;
-	}
+	public TokenType getType() { return type; }
+	public void setType(TokenType type) { this.type = type; }
+	
+	public String getAttribute() { return attribute; }
+	public void setAttribute(String attribute) { this.attribute = attribute; }
 
-	public void setAttribute(String attribute) {
-		this.attribute = attribute;
-	}
-
-	public int getLineNumber() {
-		return lineNumber;
-	}
-
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
-	}
+	public int getLineNumber() { return lineNumber; }
+	public void setLineNumber(int lineNumber) { this.lineNumber = lineNumber; }
 
 	public String toString() {
 		if(attribute != "")
-			return type + " ; " + attribute + " ; " + lineNumber;
+			return type + ";" + attribute + ";" + lineNumber;
 		else
-			return type + " ; " + " ; " + lineNumber;
+			return type + ";" + ";" + lineNumber;
 	}
 }
