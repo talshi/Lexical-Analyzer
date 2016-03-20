@@ -1,19 +1,56 @@
 
 public class Token {
-	private String lexema;
-	private TokenTypeEnum.TokenType type;
-	private int location;
 	
-	public Token(String lexema, TokenTypeEnum.TokenType type) {
+	public enum TokenType {
+		INT,
+		FUNC,
+		MAIN,
+		IF,
+		THEN,
+		ELSE,
+		NUM,
+		ID,
+		FID,
+		ASSIGN,
+		PLUS,
+		MINUS,
+		MULT,
+		DIV,
+		AND,
+		OR,
+		REL,
+		SC, // semicolon
+		LP, // left parentheses
+		RP, // right parentheses
+		LC, // left curly parentheses
+		RC, // right curly parentheses
+		CMMNT,
+		WHITE,
+		EOF
+	}
+	
+	private String lexema;
+	private TokenType type;
+	private String attribute;
+	private int lineNumber;
+	
+	public Token(String lexema, TokenType type) {
 		this.lexema = lexema;
 		this.type = type;
 	}
 	
-//	public Token(String lexema, TokenTypeEnum.TokenType type, int location) {
-//		this.lexema = lexema;
-//		this.type = type;
-//		this.location = location;
-//	}
+	public Token(String lexema, TokenType type, int lineNumber) {
+		this.lexema = lexema;
+		this.type = type;
+		this.lineNumber = lineNumber;
+	}
+
+	public Token(String lexema, TokenType type, String attribute, int lineNumber) {
+		this.lexema = lexema;
+		this.type = type;
+		this.attribute = attribute;
+		this.lineNumber = lineNumber;
+	}
 	
 	public String getLexema() {
 		return lexema;
@@ -21,16 +58,33 @@ public class Token {
 	public void setLexema(String lexema) {
 		this.lexema = lexema;
 	}
-	public TokenTypeEnum.TokenType getType() {
+	public TokenType getType() {
 		return type;
 	}
-	public void setType(TokenTypeEnum.TokenType type) {
+	public void setType(TokenType type) {
 		this.type = type;
 	}
-	public int getLocation() {
-		return location;
+	
+	public String getAttribute() {
+		return attribute;
 	}
-	public void setLocation(int location) {
-		this.location = location;
+
+	public void setAttribute(String attribute) {
+		this.attribute = attribute;
+	}
+
+	public int getLineNumber() {
+		return lineNumber;
+	}
+
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
+	}
+
+	public String toString() {
+		if(attribute != "")
+			return type + " ; " + attribute + " ; " + lineNumber;
+		else
+			return type + " ; " + " ; " + lineNumber;
 	}
 }
