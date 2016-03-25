@@ -4,10 +4,6 @@ import java.util.regex.Pattern;
 
 public class Parser {
 	private Token token = null;
-
-	public Parser() {
-//		tokens = new HashMap<Token, Integer>();
-	}
 	
 	public Token yylex(Scanner s) {
 		String lexema = "";
@@ -17,15 +13,13 @@ public class Parser {
 			LineTaker.setLine(s.nextLine());
 		}
 		else if(isEndOfLine()) {
-			LineTaker.setLine(s.nextLine());
-			LineTaker.increaseLineNumber();
-			CharTaker.zeroLocation();
+			newLine(s);
 		}
 			
 		while(!isWhiteSpace()) {
-			while(CharTaker.getCharLocation() < LineTaker.getLine().length()) {
+			while(!isEndOfLine()) {
 				lexema = "";
-				while(CharTaker.getCharLocation() < LineTaker.getLine().length() && !Character.isSpaceChar(c = CharTaker.getch(LineTaker.getLine()))) {
+				while(!isEndOfLine() && !Character.isSpaceChar(c = CharTaker.getch(LineTaker.getLine()))) {
 					lexema += c;
 				}
 				
@@ -33,8 +27,12 @@ public class Parser {
 				token = tokenize(lexema);
 				
 				// if tokenize return non-null value, add the token to the map
-				if(token != null) {
+				if(token != null && token.getType() != Token.TokenType.CMMNT) {
 					return token;
+				}
+				else if(token != null && token.getType() == Token.TokenType.CMMNT) {
+					newLine(s);
+					continue; // ignore comments
 				}
 				else {
 					// back to last recognized lexema 
@@ -44,6 +42,10 @@ public class Parser {
 						token = tokenize(lexema);
 						if(token != null) {
 							return token;
+						}
+						else if(lexema.isEmpty()) {
+							newLine(s);
+							return null;
 						}
 					}
 				}
@@ -92,7 +94,12 @@ public class Parser {
 			t = new Token("MULT", Token.TokenType.MULT, "*", LineTaker.getLineNumber());
 			break;
 		case "/":
-			t = new Token("DIV", Token.TokenType.DIV, "/", LineTaker.getLineNumber());
+			if(CharTaker.popch() != '*' && CharTaker.popch() != '/') {
+				t = new Token("DIV", Token.TokenType.DIV, "/", LineTaker.getLineNumber());
+			}
+			else if(isCMNT(token)) {
+				t = new Token("CMMNT", Token.TokenType.CMMNT, LineTaker.getLineNumber());
+			}
 			break;
 		case "&&":
 			t = new Token("AND", Token.TokenType.AND, LineTaker.getLineNumber());
@@ -143,6 +150,7 @@ public class Parser {
 			}
 			else if(isCMNT(token)) {
 				System.out.println("(DEBUG)Found Comment. Ignoring.");
+				t = new Token("CMMNT", Token.TokenType.CMMNT, LineTaker.getLineNumber());
 			}
 			return t;
 			
@@ -181,13 +189,19 @@ public class Parser {
 	}
 
 	private boolean isCMNT(String token) {
-		String cmnt = "(//.*?$)|(/\\*.*?\\*/)";
+		String cmnt = "(//.*)|(/\\*(.*)|(\t\n\f\r)*\\*/)|(/\\*[^/])";
 		Pattern cmntPattern = Pattern.compile(cmnt);
 		Matcher m = cmntPattern.matcher(token);
 		if(m.matches()) {
 			return true;
 		}
 		return false;
+	}
+	
+	private void newLine(Scanner s) {
+		LineTaker.setLine(s.nextLine());
+		LineTaker.increaseLineNumber();
+		CharTaker.zeroLocation();
 	}
 	
 	private boolean isEndOfLine() {

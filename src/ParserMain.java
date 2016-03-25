@@ -52,6 +52,7 @@ public class ParserMain {
 		// find tokens and save them to hashmap
 		do {
 			t = p.yylex(s);
+			if(t == null) continue;
 			System.out.println("writing to file... " + "[" + t.toString() + "]");
 			try {
 				writer.write(t.toString());

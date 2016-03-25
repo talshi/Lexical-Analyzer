@@ -1,4 +1,6 @@
 int x = 7;
-y==tmp3;
-
-else
+//   asdasd
+/*  */
+func HelloWorld;
+if then main
+}
